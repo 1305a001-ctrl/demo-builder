@@ -6,7 +6,12 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"demo_builder" = ["templates/**/*.html", "templates/**/*.css", "templates/**/*.js"]
+"demo_builder" = [
+    "templates/**/*.j2",
+    "templates/**/*.html",
+    "templates/**/*.css",
+    "templates/**/*.js",
+]
 
 [project]
 name = "demo-builder"
