@@ -5,6 +5,7 @@ Usage (one-shot):
 
 Output:
     {OUTPUT_ROOT}/<slug>/index.html for each lead
+    {OUTPUT_ROOT}/<slug>/photos/[hero.jpg, photo-2.jpg, ...] when GOOGLE_MAPS_API_KEY is set
 """
 import asyncio
 import logging
@@ -12,6 +13,7 @@ import sys
 
 import sentry_sdk
 
+from demo_builder import place_photos
 from demo_builder.db import db
 from demo_builder.render import render_to_dir
 from demo_builder.settings import settings
@@ -36,7 +38,28 @@ async def build_for_ids(lead_ids: list[str]) -> list[str]:
     urls: list[str] = []
     for lead in leads:
         spec = lead_to_spec(lead)
-        render_to_dir(spec)
+        out_dir = render_to_dir(spec)
+
+        # Try to fetch real photos from Google Places — replace stock hero if it works
+        if lead.get("google_place_id") and settings.google_maps_api_key:
+            try:
+                refs = await place_photos.fetch_photo_refs(
+                    lead["google_place_id"], max_refs=settings.photos_per_demo,
+                )
+                photos_dir = out_dir / "photos"
+                photos_dir.mkdir(exist_ok=True)
+                for i, ref in enumerate(refs):
+                    img = await place_photos.download_photo(ref, max_width=1600)
+                    if img:
+                        path = photos_dir / ("hero.jpg" if i == 0 else f"photo-{i + 1}.jpg")
+                        path.write_bytes(img)
+                if (photos_dir / "hero.jpg").exists():
+                    spec.hero_image = "photos/hero.jpg"
+                    render_to_dir(spec)  # re-render with the real hero path
+                    log.info("Replaced hero for %s with real Google photo", spec.slug)
+            except Exception:
+                log.exception("photo enrich failed for %s — keeping stock hero", spec.slug)
+
         url = f"{settings.public_base_url}/{spec.slug}/"
         urls.append(url)
         log.info("Demo ready: %s", url)

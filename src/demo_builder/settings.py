@@ -12,6 +12,13 @@ class Settings(BaseSettings):
     # Public base URL for the rendered demos (used in copy + share links).
     public_base_url: str = "https://demos.the2357.com"
 
+    # Google Maps Places API — used to fetch real hero photos.
+    # Empty key falls back to stock Unsplash heroes.
+    google_maps_api_key: str = ""
+
+    # How many photos to download per demo (used in hero + gallery).
+    photos_per_demo: int = 3
+
     # Sentry
     sentry_dsn: str = ""
 
