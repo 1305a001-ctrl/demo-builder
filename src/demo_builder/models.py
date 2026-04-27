@@ -5,6 +5,12 @@ from pydantic import BaseModel, Field
 
 NicheTemplate = Literal["restaurant", "clinic"]
 
+# Variant within a niche. Each is a separate Jinja2 file under templates/<niche>/<variant>.html.j2.
+#   classic  — clean, conservative, single-page brochure
+#   bold     — large imagery, AOS scroll animations, gallery scroll-snap
+#   premium  — parallax hero, animated stat counters, testimonial cards
+TemplateVariant = Literal["classic", "bold", "premium"]
+
 
 class DemoSpec(BaseModel):
     """Inputs to the renderer. Decoupled from `leads` row shape so we can
@@ -14,6 +20,7 @@ class DemoSpec(BaseModel):
     # Identity
     slug: str  # URL-safe; used for output dir + public URL
     template: NicheTemplate
+    variant: TemplateVariant = "classic"
     lead_id: str | None = None
 
     # Business
@@ -37,6 +44,8 @@ class DemoSpec(BaseModel):
 
     # Hero photo URL (Unsplash placeholder for v0.1; real photo via v0.2 photo scraper)
     hero_image: str | None = None
+    # Additional photos available for galleries (relative paths after photo scraping)
+    gallery_images: list[str] = Field(default_factory=list)
 
     # Generated metadata
     booking_url: str | None = None  # placeholder; will be a Cal.com link in v0.2

@@ -3,10 +3,11 @@
 v0.1: direct mapping + niche-derived defaults. v0.2 will plug in Claude for
 LLM-rewritten copy and the photo scraper for hero images.
 """
+import hashlib
 import re
 from typing import Any
 
-from demo_builder.models import DemoSpec, NicheTemplate
+from demo_builder.models import DemoSpec, NicheTemplate, TemplateVariant
 
 # Stock hero images by niche — Unsplash queries that look professional.
 # Real photos from Google Places will replace these in v0.2.
@@ -65,6 +66,35 @@ DEFAULT_HOURS_CLINIC = {
     "Sun":     "Closed",
 }
 
+# Per-niche variant pools used by deterministic round-robin for new leads.
+# A lead's google_place_id (or business_name fallback) hash → index → variant.
+NICHE_VARIANTS: dict[str, list[TemplateVariant]] = {
+    "restaurant": ["classic", "bold"],
+    "clinic_dental": ["classic", "premium"],
+    "clinic_medical": ["classic", "premium"],
+    "clinic_beauty": ["premium", "classic"],   # beauty leans premium
+}
+
+# Hand-picked overrides for the first 5 demos so Ben sees a deliberate range.
+# Anything not listed falls through to the deterministic chooser below.
+NAME_VARIANT_OVERRIDES: dict[str, TemplateVariant] = {
+    "Kedai Makanan Nam Heong": "classic",       # institution → conservative
+    "Restoran New Holly Wood": "bold",          # nostalgic name → push it
+    "Chin Dental Clinic": "classic",            # small clinic → keep simple
+    "Melaka Tengah Dental Clinic": "classic",   # second classic for comparison
+    "Believe Face & Body Center": "premium",    # beauty → luxe parallax
+}
+
+
+def pick_variant(lead: dict[str, Any]) -> TemplateVariant:
+    name = lead.get("business_name") or ""
+    if name in NAME_VARIANT_OVERRIDES:
+        return NAME_VARIANT_OVERRIDES[name]
+    pool = NICHE_VARIANTS.get(lead["niche"], ["classic"])
+    seed_str = str(lead.get("google_place_id") or name)
+    h = int(hashlib.md5(seed_str.encode("utf-8"), usedforsecurity=False).hexdigest(), 16)
+    return pool[h % len(pool)]
+
 
 def slugify(name: str) -> str:
     s = re.sub(r"[^a-zA-Z0-9]+", "-", name).strip("-").lower()
@@ -93,6 +123,7 @@ def lead_to_spec(lead: dict[str, Any]) -> DemoSpec:
     return DemoSpec(
         slug=slugify(name),
         template=template,
+        variant=pick_variant(lead),
         lead_id=str(lead.get("id") or ""),
         name=name,
         address=lead.get("business_address"),

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ name }} — {{ city or "Malaysia" }}</title>
+  <meta name="description" content="{{ tagline }}" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: {{ primary_color }};
+      --accent:  {{ accent_color }};
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; color: #0a0a0a; overflow-x: hidden; }
+    .display { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.02em; }
+    .bg-primary { background: var(--primary); }
+    .text-primary { color: var(--primary); }
+    .bg-accent { background: var(--accent); }
+    .text-accent { color: var(--accent); }
+    .border-primary { border-color: var(--primary); }
+
+    /* Marquee */
+    .marquee { display: flex; overflow: hidden; gap: 3rem; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+    .marquee-track { display: flex; gap: 3rem; animation: scroll 30s linear infinite; flex-shrink: 0; white-space: nowrap; }
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-100%); }
+    }
+
+    /* Photo gallery scroll-snap */
+    .gallery {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+    .gallery > * { flex: 0 0 auto; scroll-snap-align: center; }
+
+    /* Animated CTA */
+    .pulse-ring {
+      position: relative;
+    }
+    .pulse-ring::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      box-shadow: 0 0 0 0 var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(0,0,0,0.4); }
+      70%  { box-shadow: 0 0 0 18px rgba(0,0,0,0); }
+      100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+    }
+
+    /* Stats count-up */
+    .stat-num {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Smooth scroll for nav */
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-stone-950 text-stone-100">
+
+<!-- Demo banner -->
+<div class="bg-amber-300 text-amber-950 text-center text-xs py-1.5 px-4 font-medium">
+  ✨ This is a live demo built for {{ name }}. To make it real, get in touch.
+</div>
+
+<!-- Hero — full-bleed photo with bold display type -->
+<header class="relative h-screen overflow-hidden">
+  <img src="{{ hero_image }}" alt="{{ name }}" class="absolute inset-0 w-full h-full object-cover" />
+  <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30"></div>
+  <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+
+  <div class="relative h-full flex flex-col justify-center max-w-6xl mx-auto px-6">
+    <p class="uppercase tracking-[0.3em] text-xs text-accent mb-4" data-aos="fade-down">
+      {{ city or "Malaysia" }} · est. tradition
+    </p>
+    <h1 class="display text-7xl md:text-[10rem] leading-[0.9] mb-6 max-w-4xl" data-aos="fade-up" data-aos-duration="800">
+      {{ name }}
+    </h1>
+    <p class="text-xl md:text-2xl max-w-xl text-stone-200 mb-10 font-light" data-aos="fade-up" data-aos-delay="200">
+      {{ tagline }}
+    </p>
+    <div class="flex flex-wrap gap-4" data-aos="fade-up" data-aos-delay="400">
+      <a href="{{ booking_url }}" class="pulse-ring bg-accent text-black px-8 py-4 rounded-full font-semibold text-lg hover:scale-105 transition-transform">
+        Reserve a table →
+      </a>
+      <a href="#story" class="border border-stone-400 text-white px-8 py-4 rounded-full font-semibold text-lg hover:border-white hover:bg-white/10 transition-all">
+        Read our story
+      </a>
+    </div>
+  </div>
+
+  <!-- Scroll cue -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 text-xs uppercase tracking-widest animate-bounce">
+    scroll
+  </div>
+</header>
+
+<!-- Cuisine tags marquee -->
+<section class="bg-accent text-black py-6 overflow-hidden">
+  <div class="marquee">
+    <div class="marquee-track">
+      {% for tag in cuisine_tags + cuisine_tags + cuisine_tags %}
+        <span class="display text-3xl">{{ tag }}</span>
+        <span class="text-3xl">·</span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Stats — animated count-up -->
+<section class="bg-stone-950 py-24 border-y border-stone-800">
+  <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8 text-center">
+    {% if rating %}
+    <div data-aos="fade-up">
+      <div class="display text-7xl md:text-8xl text-accent mb-2 stat-num" data-target="{{ rating }}">{{ "%.1f" % rating }}</div>
+      <p class="uppercase tracking-widest text-xs text-stone-400">Google rating</p>
+    </div>
+    {% endif %}
+    {% if review_count %}
+    <div data-aos="fade-up" data-aos-delay="150">
+      <div class="display text-7xl md:text-8xl text-accent mb-2 stat-num" data-target="{{ review_count }}">{{ "{:,}".format(review_count) }}+</div>
+      <p class="uppercase tracking-widest text-xs text-stone-400">Reviews</p>
+    </div>
+    {% endif %}
+    <div data-aos="fade-up" data-aos-delay="300">
+      <div class="display text-7xl md:text-8xl text-accent mb-2">∞</div>
+      <p class="uppercase tracking-widest text-xs text-stone-400">Stories told over our food</p>
+    </div>
+  </div>
+</section>
+
+<!-- Story / about -->
+<section id="story" class="py-32 bg-stone-950">
+  <div class="max-w-3xl mx-auto px-6">
+    <p class="display text-accent text-2xl mb-6" data-aos="fade-up">— Our kitchen</p>
+    <h2 class="display text-5xl md:text-7xl mb-10 leading-tight" data-aos="fade-up">
+      {% if cuisine_tags %}{{ cuisine_tags[0] }}.{% endif %} Made the way it was made for you, every day.
+    </h2>
+    <p class="text-xl text-stone-300 leading-relaxed mb-6" data-aos="fade-up" data-aos-delay="200">
+      Some places change with every trend. We don't. We stick to what brought you in: real recipes, fresh ingredients, plates that look like they came from a home kitchen and not a manual.
+    </p>
+    <p class="text-xl text-stone-300 leading-relaxed" data-aos="fade-up" data-aos-delay="300">
+      That's why people drive across town for us. We hope you'll come too.
+    </p>
+  </div>
+</section>
+
+<!-- Photo gallery (scroll-snap) -->
+<section class="py-12 bg-stone-900">
+  <h2 class="display text-4xl text-center mb-8 text-stone-300" data-aos="fade-up">Inside our doors</h2>
+  <div class="gallery pb-6">
+    {% set gallery_paths = gallery_images if gallery_images else [hero_image, hero_image, hero_image] %}
+    {% for img in gallery_paths %}
+    <div class="w-[80vw] md:w-[60vw] aspect-[4/3] mx-3 first:ml-6 last:mr-6 overflow-hidden rounded-2xl shadow-2xl">
+      <img src="{{ img }}" alt="{{ name }} — {{ loop.index }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Booking -->
+<section id="booking" class="py-32 bg-gradient-to-br from-primary to-stone-900">
+  <div class="max-w-2xl mx-auto px-6 text-center">
+    <p class="display text-accent text-2xl mb-4" data-aos="fade-up">— Reserve</p>
+    <h2 class="display text-5xl md:text-7xl mb-8 text-white" data-aos="fade-up">Got a table?</h2>
+    <p class="text-xl text-stone-200 mb-10" data-aos="fade-up">
+      Walk-ins are always welcome. Booking takes the wait out.
+    </p>
+    <div class="bg-white/10 backdrop-blur rounded-3xl p-10 border border-white/20" data-aos="zoom-in">
+      <p class="text-stone-300 mb-6 text-sm uppercase tracking-widest">[ booking widget would go here ]</p>
+      <a href="tel:{{ phone }}" class="block w-full bg-accent text-black px-8 py-5 rounded-full font-semibold text-xl hover:scale-105 transition-transform">
+        Call us · {{ phone or "—" }}
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Visit -->
+<section class="py-24 bg-stone-950 border-t border-stone-800">
+  <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16">
+    <div data-aos="fade-right">
+      <p class="display text-accent text-2xl mb-3">— Find us</p>
+      <h2 class="display text-4xl mb-6">{{ city or "Visit" }}</h2>
+      {% if address %}
+      <p class="text-stone-300 mb-3 text-lg">{{ address }}</p>
+      {% endif %}
+      {% if phone %}
+      <p class="text-stone-300 mb-3"><a href="tel:{{ phone }}" class="hover:text-accent">{{ phone }}</a></p>
+      {% endif %}
+      {% if google_maps_url %}
+      <a href="{{ google_maps_url }}" target="_blank" rel="noreferrer" class="text-accent hover:underline inline-flex items-center gap-2 mt-4">
+        Open in Google Maps →
+      </a>
+      {% endif %}
+    </div>
+    <div data-aos="fade-left">
+      <p class="display text-accent text-2xl mb-3">— Hours</p>
+      <h2 class="display text-4xl mb-6">When we're open</h2>
+      <ul class="space-y-3">
+        {% for day, range in hours.items() %}
+        <li class="flex justify-between border-b border-stone-800 pb-3">
+          <span class="font-medium text-stone-200">{{ day }}</span>
+          <span class="text-stone-400 font-mono">{{ range }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-black text-white py-10 text-center border-t border-stone-800">
+  <p class="display text-2xl text-accent mb-2">{{ name }}</p>
+  <p class="text-xs opacity-50">© {{ name }}. All rights reserved.</p>
+  <p class="text-xs opacity-40 mt-1">Demo built by your future web partner. <a href="https://the2357.com" class="underline hover:opacity-80">the2357.com</a></p>
+</footer>
+
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({ once: true, duration: 600, easing: 'ease-out' });
+</script>
+</body>
+</html>

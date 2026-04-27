@@ -29,7 +29,19 @@ def render_to_dir(spec: DemoSpec, output_root: str | None = None) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     env = _env()
-    template = env.get_template(f"{spec.template}/index.html.j2")
+    # Variant lookup: e.g. restaurant/bold.html.j2; falls back to classic if missing
+    variant_path = f"{spec.template}/{spec.variant}.html.j2"
+    classic_path = f"{spec.template}/classic.html.j2"
+    legacy_path = f"{spec.template}/index.html.j2"  # v0.1 default
+    for path in (variant_path, classic_path, legacy_path):
+        try:
+            template = env.get_template(path)
+            break
+        except Exception:  # noqa: BLE001
+            continue
+    else:
+        raise RuntimeError(f"no template found for {spec.template}/{spec.variant}")
+
     html = template.render(**spec.model_dump())
 
     (out_dir / "index.html").write_text(html, encoding="utf-8")

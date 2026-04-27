@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ name }} — {{ city or "Malaysia" }}</title>
+  <meta name="description" content="{{ tagline }}" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: {{ primary_color }};
+      --accent:  {{ accent_color }};
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; color: #1f2937; }
+    .display { font-family: 'Cormorant Garamond', Georgia, serif; }
+    .bg-primary { background: var(--primary); }
+    .text-primary { color: var(--primary); }
+    .bg-accent { background: var(--accent); }
+    .text-accent { color: var(--accent); }
+    .border-primary { border-color: var(--primary); }
+
+    html { scroll-behavior: smooth; }
+
+    /* Sticky parallax hero */
+    .parallax-hero {
+      background-image: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.65) 100%), url('{{ hero_image }}');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    @media (max-width: 768px) {
+      .parallax-hero { background-attachment: scroll; }
+    }
+
+    /* Glass card */
+    .glass {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* Service card hover */
+    .service-card {
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    }
+    .service-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15);
+    }
+
+    /* Stat number reveal */
+    @keyframes count-up {
+      from { transform: translateY(20px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .stat-num { animation: count-up 0.8s ease-out backwards; }
+
+    /* Testimonial scroll-snap */
+    .testi-track {
+      display: flex; overflow-x: auto;
+      scroll-snap-type: x mandatory; gap: 1.5rem;
+      scrollbar-width: thin; padding-bottom: 1rem;
+    }
+    .testi-track > * { flex: 0 0 85%; scroll-snap-align: center; }
+    @media (min-width: 768px) { .testi-track > * { flex: 0 0 40%; } }
+
+    /* Underline reveal on hero */
+    .underline-grow { position: relative; display: inline-block; }
+    .underline-grow::after {
+      content: ''; position: absolute; left: 0; bottom: -8px; height: 4px;
+      width: 0; background: var(--accent);
+      animation: grow 1.2s 0.4s ease-out forwards;
+    }
+    @keyframes grow { to { width: 60%; } }
+  </style>
+</head>
+<body class="bg-stone-50">
+
+<!-- Demo banner -->
+<div class="bg-amber-100 border-b border-amber-300 text-amber-900 text-center text-xs py-1.5 px-4">
+  ✨ This is a live demo built for {{ name }}. To make it real, get in touch.
+</div>
+
+<!-- Top nav -->
+<nav class="absolute top-9 left-0 right-0 z-20">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <span class="display text-2xl text-white font-medium">{{ name }}</span>
+    <div class="hidden md:flex gap-8 text-sm text-white/90">
+      <a href="#services" class="hover:text-accent">Services</a>
+      <a href="#why" class="hover:text-accent">Why us</a>
+      <a href="#visit" class="hover:text-accent">Visit</a>
+      <a href="{{ booking_url }}" class="bg-accent text-white px-5 py-2 rounded-full font-medium hover:scale-105 transition-transform">Book online</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Parallax hero -->
+<header class="parallax-hero h-[90vh] flex items-center">
+  <div class="max-w-6xl mx-auto px-6 w-full">
+    <p class="uppercase tracking-[0.3em] text-xs text-accent mb-4" data-aos="fade-down">
+      {{ city or "Malaysia" }} · trusted care
+    </p>
+    <h1 class="display text-6xl md:text-8xl text-white font-medium leading-[1] mb-6 max-w-3xl">
+      <span class="underline-grow">{{ name }}</span>
+    </h1>
+    <p class="text-xl md:text-2xl text-stone-200 max-w-xl mb-10 font-light" data-aos="fade-up" data-aos-delay="200">
+      {{ tagline }}
+    </p>
+    <div class="flex flex-wrap gap-3" data-aos="fade-up" data-aos-delay="400">
+      <a href="{{ booking_url }}" class="bg-accent text-white px-8 py-4 rounded-full font-medium text-lg hover:scale-105 transition-transform">
+        Book your appointment
+      </a>
+      <a href="#services" class="border border-white/40 text-white px-8 py-4 rounded-full font-medium text-lg hover:bg-white/10 transition-all">
+        See our services
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Stats with animated reveal -->
+<section class="relative -mt-20 z-10 px-6">
+  <div class="max-w-5xl mx-auto glass rounded-3xl p-8 md:p-12 grid md:grid-cols-3 gap-8 shadow-2xl">
+    {% if rating %}
+    <div class="text-center" data-aos="fade-up">
+      <div class="display text-6xl text-primary mb-2 stat-num">{{ "%.1f" % rating }}</div>
+      <p class="uppercase tracking-widest text-xs text-stone-500">Google rating</p>
+    </div>
+    {% endif %}
+    {% if review_count %}
+    <div class="text-center" data-aos="fade-up" data-aos-delay="150">
+      <div class="display text-6xl text-primary mb-2 stat-num">{{ "{:,}".format(review_count) }}</div>
+      <p class="uppercase tracking-widest text-xs text-stone-500">Patients served</p>
+    </div>
+    {% endif %}
+    <div class="text-center" data-aos="fade-up" data-aos-delay="300">
+      <div class="display text-6xl text-primary mb-2 stat-num">24/7</div>
+      <p class="uppercase tracking-widest text-xs text-stone-500">Online booking</p>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services" class="py-32 bg-stone-50">
+  <div class="max-w-6xl mx-auto px-6">
+    <p class="text-accent uppercase tracking-widest text-xs mb-3" data-aos="fade-up">— Our services</p>
+    <h2 class="display text-5xl md:text-6xl mb-16 max-w-2xl text-stone-900" data-aos="fade-up">
+      Specialist care, built around you.
+    </h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for service in services %}
+      <div class="service-card bg-white rounded-2xl p-8 border border-stone-100" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+        <div class="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6">
+          <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <h3 class="display text-2xl mb-3 text-stone-900">{{ service }}</h3>
+        <p class="text-stone-600 leading-relaxed">Comprehensive care, tailored to your needs and lifestyle.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Why -->
+<section id="why" class="py-32 bg-primary text-white relative overflow-hidden">
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-10 left-10 w-72 h-72 bg-accent rounded-full blur-3xl"></div>
+    <div class="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+  </div>
+  <div class="relative max-w-4xl mx-auto px-6 text-center">
+    <p class="text-accent uppercase tracking-widest text-xs mb-3" data-aos="fade-up">— Why us</p>
+    <h2 class="display text-5xl md:text-6xl mb-12" data-aos="fade-up">
+      Healthcare that doesn't feel like a queue.
+    </h2>
+    <div class="grid md:grid-cols-3 gap-8 mt-16">
+      {% for highlight in [("⏱", "Short waits", "On-time appointments, every time."), ("💬", "Real conversations", "We explain — never lecture."), ("✨", "Modern facilities", "Clean, calm, well-equipped.")] %}
+      <div data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+        <div class="text-4xl mb-3">{{ highlight[0] }}</div>
+        <h3 class="display text-2xl mb-2">{{ highlight[1] }}</h3>
+        <p class="text-white/70 text-sm">{{ highlight[2] }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials (placeholder, scroll-snap) -->
+<section class="py-32 bg-white">
+  <div class="max-w-6xl mx-auto px-6">
+    <p class="text-accent uppercase tracking-widest text-xs mb-3" data-aos="fade-up">— What patients say</p>
+    <h2 class="display text-5xl md:text-6xl mb-12 text-stone-900" data-aos="fade-up">
+      Trusted by {{ "{:,}+".format(review_count) if review_count else "many" }}
+    </h2>
+    <div class="testi-track" data-aos="fade-up">
+      {% for q in [("Felt heard from the moment I walked in. The team explained everything clearly.", "Sarah K."), ("Booking online is the smoothest I've experienced. Showed up, got seen on time.", "Imran A."), ("Modern equipment and a calm vibe. My family goes here now.", "May L."), ("Clear pricing, no surprises. Would recommend.", "Daniel T.")] %}
+      <div class="bg-stone-50 rounded-2xl p-8 border border-stone-100">
+        <div class="text-4xl text-accent mb-4">"</div>
+        <p class="text-lg text-stone-800 leading-relaxed mb-6">{{ q[0] }}</p>
+        <p class="text-sm text-stone-500 font-medium">{{ q[1] }} — Google review</p>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="text-xs text-stone-400 mt-4 italic">Examples — real reviews swap in once we go live.</p>
+  </div>
+</section>
+
+<!-- Booking CTA -->
+<section class="py-32 bg-gradient-to-br from-primary via-primary to-stone-900 text-white">
+  <div class="max-w-3xl mx-auto px-6 text-center">
+    <p class="text-accent uppercase tracking-widest text-xs mb-3" data-aos="fade-up">— Book now</p>
+    <h2 class="display text-5xl md:text-6xl mb-8" data-aos="fade-up">
+      Ready when you are.
+    </h2>
+    <p class="text-xl text-white/80 mb-12" data-aos="fade-up">
+      Online booking, no phone tag, no waiting.
+    </p>
+    <div class="glass rounded-3xl p-10 max-w-lg mx-auto" data-aos="zoom-in">
+      <p class="text-stone-700 mb-6 text-sm uppercase tracking-widest">[ Cal.com booking widget would go here ]</p>
+      <a href="tel:{{ phone }}" class="block w-full bg-accent text-white px-8 py-5 rounded-full font-medium text-lg hover:scale-105 transition-transform">
+        Or call us · {{ phone or "—" }}
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Visit -->
+<section id="visit" class="py-24 bg-stone-50 border-t border-stone-200">
+  <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16">
+    <div data-aos="fade-right">
+      <p class="text-accent uppercase tracking-widest text-xs mb-3">— Where</p>
+      <h2 class="display text-4xl mb-6 text-stone-900">Find us in {{ city or "Malaysia" }}</h2>
+      {% if address %}
+      <p class="text-lg text-stone-700 mb-3">{{ address }}</p>
+      {% endif %}
+      {% if phone %}
+      <p class="text-stone-600 mb-3"><a href="tel:{{ phone }}" class="text-primary hover:underline">{{ phone }}</a></p>
+      {% endif %}
+      {% if google_maps_url %}
+      <a href="{{ google_maps_url }}" target="_blank" rel="noreferrer" class="text-accent hover:underline inline-flex items-center gap-2 mt-4">
+        Open in Google Maps →
+      </a>
+      {% endif %}
+    </div>
+    <div data-aos="fade-left">
+      <p class="text-accent uppercase tracking-widest text-xs mb-3">— When</p>
+      <h2 class="display text-4xl mb-6 text-stone-900">Hours</h2>
+      <ul class="space-y-3">
+        {% for day, range in hours.items() %}
+        <li class="flex justify-between border-b border-stone-200 pb-3">
+          <span class="font-medium text-stone-900">{{ day }}</span>
+          <span class="text-stone-600 font-mono">{{ range }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-stone-900 text-white py-12 text-center">
+  <p class="display text-3xl text-accent mb-2">{{ name }}</p>
+  <p class="text-xs opacity-60">© {{ name }}. All rights reserved.</p>
+  <p class="text-xs opacity-40 mt-1">Demo built by your future web partner. <a href="https://the2357.com" class="underline hover:opacity-80">the2357.com</a></p>
+</footer>
+
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({ once: true, duration: 700, easing: 'ease-out-cubic' });
+</script>
+</body>
+</html>
