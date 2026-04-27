@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ name }} — {{ city or "Malaysia" }}</title>
+  <meta name="description" content="{{ tagline }}" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: {{ primary_color }};
+      --accent:  {{ accent_color }};
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; color: #1a1a1a; }
+    h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
+    .bg-primary { background: var(--primary); }
+    .text-primary { color: var(--primary); }
+    .bg-accent { background: var(--accent); }
+    .text-accent { color: var(--accent); }
+    .border-primary { border-color: var(--primary); }
+  </style>
+</head>
+<body class="bg-stone-50">
+
+<!-- Demo banner -->
+<div class="bg-amber-100 border-b border-amber-300 text-amber-900 text-center text-xs py-1.5 px-4">
+  ✨ This is a demo built for {{ name }}. To make it real, get in touch.
+</div>
+
+<!-- Hero -->
+<header class="relative h-[80vh] overflow-hidden">
+  <img src="{{ hero_image }}" alt="{{ name }}" class="absolute inset-0 w-full h-full object-cover" />
+  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30"></div>
+  <div class="relative h-full flex flex-col justify-end max-w-5xl mx-auto px-6 pb-16 text-white">
+    <p class="uppercase tracking-widest text-sm text-accent font-semibold mb-3">{{ city or "Malaysia" }} · since established</p>
+    <h1 class="text-5xl md:text-7xl font-bold mb-4 max-w-3xl">{{ name }}</h1>
+    <p class="text-lg md:text-xl max-w-xl text-stone-200 mb-8">{{ tagline }}</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="{{ booking_url }}" class="bg-accent hover:opacity-90 text-white px-6 py-3 rounded-lg font-semibold">Book a table</a>
+      <a href="#menu" class="bg-white/10 backdrop-blur border border-white/30 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-semibold">View the menu</a>
+    </div>
+  </div>
+</header>
+
+<!-- Trust strip -->
+<section class="bg-white border-y border-stone-200 py-6">
+  <div class="max-w-5xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4">
+    {% if rating %}
+    <div class="flex items-center gap-2">
+      <span class="text-3xl">★</span>
+      <span class="text-2xl font-semibold">{{ "%.1f" % rating }}</span>
+      <span class="text-sm text-stone-500">on Google</span>
+    </div>
+    {% endif %}
+    {% if review_count %}
+    <div class="text-sm text-stone-600"><span class="font-semibold text-stone-900">{{ "{:,}".format(review_count) }}</span> reviews</div>
+    {% endif %}
+    {% for tag in cuisine_tags %}
+      <span class="px-3 py-1 rounded-full bg-stone-100 text-sm">{{ tag }}</span>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Menu placeholder -->
+<section id="menu" class="max-w-5xl mx-auto px-6 py-20">
+  <h2 class="text-4xl mb-3 text-primary">A taste of our kitchen</h2>
+  <p class="text-stone-600 mb-12 max-w-2xl">Signature dishes that keep our regulars coming back. Our full menu is updated daily.</p>
+  <div class="grid md:grid-cols-3 gap-8">
+    {% for label in ["Signature dishes", "Local favourites", "Daily specials"] %}
+    <div class="bg-white border border-stone-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+      <div class="aspect-square bg-gradient-to-br from-stone-100 to-stone-200 rounded-lg mb-4 flex items-center justify-center text-stone-400">
+        <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3h14v14H3V3zm2 2v10h10V5H5z"/></svg>
+      </div>
+      <h3 class="text-xl mb-2">{{ label }}</h3>
+      <p class="text-stone-600 text-sm">Lovingly prepared, served fresh — built on tradition, made for today.</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Reservation -->
+<section id="booking" class="bg-stone-100 py-20">
+  <div class="max-w-3xl mx-auto px-6 text-center">
+    <h2 class="text-4xl text-primary mb-3">Book your table</h2>
+    <p class="text-stone-600 mb-8">Walk-ins welcome — but securing your table is one less thing to worry about.</p>
+    <div class="bg-white rounded-xl p-8 border border-stone-200 shadow-sm">
+      <p class="text-stone-500 mb-4 text-sm">[ Online booking widget would go here ]</p>
+      <a href="tel:{{ phone }}" class="block w-full bg-primary text-white px-6 py-4 rounded-lg font-semibold text-lg hover:opacity-90">
+        Or call us: {{ phone or "—" }}
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Visit -->
+<section class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12">
+  <div>
+    <h2 class="text-4xl text-primary mb-6">Find us</h2>
+    {% if address %}
+    <p class="mb-3"><span class="font-semibold">Address:</span> {{ address }}</p>
+    {% endif %}
+    {% if phone %}
+    <p class="mb-3"><span class="font-semibold">Phone:</span> <a href="tel:{{ phone }}" class="text-primary hover:underline">{{ phone }}</a></p>
+    {% endif %}
+    {% if google_maps_url %}
+    <p class="mb-3"><a href="{{ google_maps_url }}" target="_blank" rel="noreferrer" class="text-accent hover:underline">→ Open in Google Maps</a></p>
+    {% endif %}
+  </div>
+  <div>
+    <h3 class="text-xl mb-4 text-primary">Hours</h3>
+    <ul class="space-y-2">
+      {% for day, range in hours.items() %}
+      <li class="flex justify-between border-b border-stone-200 pb-2">
+        <span class="font-medium">{{ day }}</span>
+        <span class="text-stone-600">{{ range }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-primary text-white py-8 text-center">
+  <p class="text-sm opacity-90">© {{ name }}. All rights reserved.</p>
+  <p class="text-xs opacity-60 mt-1">Demo built by your future web partner. <a href="https://the2357.com" class="underline hover:opacity-80">the2357.com</a></p>
+</footer>
+
+</body>
+</html>
